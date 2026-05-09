@@ -125,6 +125,18 @@ class LangflowServerSyncTests(unittest.TestCase):
         self.assertEqual(result, 0)
         mocked_run.assert_called_once_with(transport="stdio")
 
+    def test_root_status_points_to_mcp_endpoint(self) -> None:
+        response = asyncio.run(server.root_status(None))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'"/mcp"', response.body)
+
+    def test_healthz_returns_ok(self) -> None:
+        response = asyncio.run(server.healthz(None))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.body, b'{"status":"ok"}')
+
 
 if __name__ == "__main__":
     unittest.main()

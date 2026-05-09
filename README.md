@@ -53,6 +53,15 @@ Hosted MCP:
 python server.py
 ```
 
+The hosted MCP endpoint is `/mcp`. For a local server, configure MCP clients with:
+
+```text
+http://localhost:8080/mcp
+```
+
+The root URL (`/`) and `/healthz` return simple JSON status responses for browser
+checks and deployment health checks, but they are not MCP endpoints.
+
 Local desktop/stdin mode:
 
 ```bash

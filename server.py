@@ -13,6 +13,8 @@ from urllib.parse import urlparse
 import httpx
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 
 load_dotenv()
@@ -113,6 +115,23 @@ SETTINGS = load_settings()
 
 
 mcp = FastMCP("Langflow MCP", host=_resolve_host(), port=_resolve_port())
+
+
+@mcp.custom_route("/", methods=["GET"], include_in_schema=False)
+async def root_status(request: Request) -> JSONResponse:
+    return JSONResponse(
+        {
+            "status": "ok",
+            "name": "Langflow MCP",
+            "mcp_endpoint": "/mcp",
+            "transport": _resolve_transport(False),
+        }
+    )
+
+
+@mcp.custom_route("/healthz", methods=["GET"], include_in_schema=False)
+async def healthz(request: Request) -> JSONResponse:
+    return JSONResponse({"status": "ok"})
 
 
 def _header_safe_variable_name(name: str) -> str:
