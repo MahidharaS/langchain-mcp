@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+from starlette.routing import Mount, Route
 
 
 load_dotenv()
@@ -868,6 +869,30 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     transport = _resolve_transport(args.stdio)
+    if transport == "streamable-http":
+        # Expose both Streamable HTTP (/mcp) and legacy SSE (/sse) so remote
+        # clients with either transport preference can connect to the same server.
+        import anyio
+        import uvicorn
+        from starlette.applications import Starlette
+
+        streamable_app = mcp.streamable_http_app()
+        sse_app = mcp.sse_app()
+        routes = [
+            route
+            for route in [*streamable_app.routes, *sse_app.routes]
+            if isinstance(route, (Route, Mount))
+        ]
+        app = Starlette(routes=routes, lifespan=lambda app: mcp.session_manager.run())
+        config = uvicorn.Config(
+            app,
+            host=_resolve_host(),
+            port=_resolve_port(),
+            log_level="info",
+        )
+        anyio.run(uvicorn.Server(config).serve)
+        return 0
+
     mcp.run(transport=transport)
     return 0
 

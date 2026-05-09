@@ -59,6 +59,12 @@ The hosted MCP endpoint is `/mcp`. For a local server, configure MCP clients wit
 http://localhost:8080/mcp
 ```
 
+For clients that prefer the older SSE transport, the hosted server also exposes:
+
+```text
+http://localhost:8080/sse
+```
+
 The root URL (`/`) and `/healthz` return simple JSON status responses for browser
 checks and deployment health checks, but they are not MCP endpoints.
 
@@ -81,6 +87,12 @@ Hosted:
     }
   }
 }
+```
+
+SSE-compatible clients can use:
+
+```text
+https://your-hosted-service.example.com/sse
 ```
 
 Local:
